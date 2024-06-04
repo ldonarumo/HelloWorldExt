@@ -56,7 +56,7 @@
         <Parent guid="guidHelloWorldExtPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke TestCommand</ButtonText>
+          <ButtonText>RENAME TAB</ButtonText>
         </Strings>
       </Button>
     </Buttons>

@@ -30,7 +30,7 @@ namespace HelloWorldExt
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly AsyncPackage package;
+        private readonly HelloWorldExtPackage package;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCommand"/> class.
@@ -38,7 +38,7 @@ namespace HelloWorldExt
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         /// <param name="commandService">Command service to add command to, not null.</param>
-        private TestCommand(AsyncPackage package, OleMenuCommandService commandService)
+        private TestCommand(HelloWorldExtPackage package, OleMenuCommandService commandService)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -72,7 +72,7 @@ namespace HelloWorldExt
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static async Task InitializeAsync(AsyncPackage package)
+        public static async Task InitializeAsync(HelloWorldExtPackage package)
         {
             // Switch to the main thread - the call to AddCommand in TestCommand's constructor requires
             // the UI thread.
@@ -91,34 +91,22 @@ namespace HelloWorldExt
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            //ThreadHelper.ThrowIfNotOnUIThread();
-            //string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            //string title = "TestCommand";
-
-            //// Show a message box to prove we were here
-            //VsShellUtilities.ShowMessageBox(
-            //    this.package,
-            //    message,
-            //    title,
-            //    OLEMSGICON.OLEMSGICON_INFO,
-            //    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-            //    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST
-            //    );
-
             ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            var activeDocument = dte?.ActiveDocument;
-            if (activeDocument != null)
-            {
-                string newName = PromptForNewName();
-                if (!string.IsNullOrEmpty(newName))
-                {
-                    var t = activeDocument.Windows;
 
-                    activeDocument.Windows.Item(1).Caption = newName;
+            var newTitle = PromptForNewName();
+            if (!string.IsNullOrEmpty(newTitle))
+            {
+
+                var customTitleToolWindow = (CustomTitleToolWindow)package.ShowCustomTitleToolWindow(); // (CustomTitleToolWindow)ShowCustomTitleToolWindow();
+                if (customTitleToolWindow != null)
+                {
+                    customTitleToolWindow.UpdateTitle(newTitle);
+                    ((CustomTitleControl)customTitleToolWindow.Content).SetTitle(newTitle);
                 }
             }
         }
+
+
 
         private string PromptForNewName()
         {

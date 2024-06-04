@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace HelloWorldExt
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(HelloWorldExtPackage.PackageGuidString)]
+    [ProvideToolWindow(typeof(CustomTitleToolWindow))]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class HelloWorldExtPackage : AsyncPackage
     {
@@ -48,6 +49,19 @@ namespace HelloWorldExt
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             await TestCommand.InitializeAsync(this);
+        }
+
+        public ToolWindowPane ShowCustomTitleToolWindow()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ToolWindowPane window = FindToolWindow(typeof(CustomTitleToolWindow), 0, true);
+            if ((null == window) || (null == window.Frame))
+            {
+                throw new NotSupportedException("Cannot create tool window");
+            }
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            return window;
         }
 
         #endregion
